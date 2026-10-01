@@ -1,0 +1,11 @@
+layer,value,class_name,hex_color
+landcover,1,Forest,#1B7837
+landcover,2,Shrubland/grassland,#A6D96A
+landcover,3,Cropland,#FEE08B
+landcover,4,Built-up,#D73027
+landcover,5,Bare/sparse,#BDBDBD
+landcover,6,Water,#4575B4
+change,1,Stable,#E0E0E0
+change,2,Forest loss,#D55E00
+change,3,Forest gain,#009E73
+change,4,Other change,#56B4E9

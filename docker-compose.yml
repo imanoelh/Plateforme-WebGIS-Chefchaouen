@@ -1,0 +1,44 @@
+services:
+  postgis:
+    image: postgis/postgis:16-3.5
+    container_name: chefchaouen_postgis
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - chefchaouen_postgis_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_HOST: postgis
+      DB_PORT: "5432"
+      DB_SCHEMA: webgis
+      BACKEND_HOST: 0.0.0.0
+      BACKEND_PORT: "8000"
+      CORS_ORIGINS: http://localhost:8081,http://127.0.0.1:8081
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgis
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  chefchaouen_postgis_data:
