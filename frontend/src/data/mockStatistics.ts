@@ -22,7 +22,11 @@ export const CHANGE_STATS = [
   { name: "Other Change", value: 386.02 },
 ];
 
-export interface Transition { from: string; to: string; area: number }
+export interface Transition {
+  from: string;
+  to: string;
+  area: number;
+}
 // Populated later from transitions_2019_2025_ha.csv. Intentionally empty.
 export const TRANSITIONS: Transition[] = [];
 

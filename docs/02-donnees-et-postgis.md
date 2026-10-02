@@ -2,7 +2,7 @@
 
 ## Sources du projet
 
-Les jeux de données sont conservés dans [`data/`](../data/) et [`data_chefchaouen/`](../data_chefchaouen/). Ils comprennent :
+Les jeux de données utilisés par l'application sont conservés dans [`data/`](../data/). Ils comprennent :
 
 | Type | Fichiers principaux | Rôle |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Les jeux de données sont conservés dans [`data/`](../data/) et [`data_chefchao
 | Statistiques | CSV de superficies, transitions et précision | Tableaux et graphiques |
 | Styles | SLD et QML | Symbologie cartographique |
 
-La notice de données [`data_chefchaouen/README.txt`](../data_chefchaouen/README.txt) décrit la méthode de production par télédétection, les classes et les limites scientifiques du jeu de données. Elle attribue l'analyse satellite à Mohamed Chikh Essbiti et l'application WebGIS à Imane Elhamri. Les valeurs de précision y sont présentées comme un accord avec des étiquettes dérivées de WorldCover, **pas** comme une validation terrain indépendante.
+La [notice des données et de la méthode](../data/README.md), adaptée du `README.txt` fourni avec le paquet original, décrit la production par télédétection, les codes des classes et les limites scientifiques du jeu de données. Elle attribue l'analyse satellite à Mohamed Chikh Essbiti et l'application WebGIS à Imane Elhamri. Les valeurs de précision y sont présentées comme un accord avec des étiquettes dérivées de WorldCover, **pas** comme une validation terrain indépendante.
 
 ## Base constatée lors de l'audit
 

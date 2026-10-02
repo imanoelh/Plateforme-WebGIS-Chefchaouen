@@ -1,5 +1,7 @@
 # Phase 05 — Validation, état actuel et suite
 
+Cette page constitue le bilan **avant** le raccordement frontend. Pour l'état le plus récent, voir la [phase 06](06-integration-frontend.md).
+
 ## Vérifications effectuées
 
 Les contrôles réalisés au terme du développement backend ont donné les résultats suivants :

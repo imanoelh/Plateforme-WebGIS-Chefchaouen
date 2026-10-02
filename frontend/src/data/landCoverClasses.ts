@@ -1,4 +1,8 @@
-export interface LegendClass { value: number; name: string; color: string }
+export interface LegendClass {
+  value: number;
+  name: string;
+  color: string;
+}
 
 export const LAND_COVER_CLASSES: LegendClass[] = [
   { value: 1, name: "Forest", color: "#1B7837" },

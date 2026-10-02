@@ -16,7 +16,7 @@ Les principaux composants identifiés sont :
 - [`CompareControl.tsx`](../frontend/src/components/webgis/CompareControl.tsx) : interface de comparaison ;
 - [`Legend.tsx`](../frontend/src/components/webgis/Legend.tsx) et [`MapPopup.tsx`](../frontend/src/components/webgis/MapPopup.tsx) : légende et informations ponctuelles.
 
-Le projet comportait également les dossiers `data/`, `data_chefchaouen/` et `backend/` ; le backend était vide avant son implémentation ultérieure.
+Le paquet original `data_chefchaouen/` était conservé à côté du dépôt ; les fichiers utilisés par l'application sont dans [`data/`](../data/). Le dossier `backend/` était vide avant son implémentation ultérieure.
 
 ## Résultat de l'audit fonctionnel
 

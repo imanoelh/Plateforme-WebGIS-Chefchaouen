@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: chefchaouen-webgis-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: chefchaouen-webgis-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chefchaouen-webgis-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chefchaouen-webgis-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: chefchaouen-webgis-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: chefchaouen-webgis-db
+          property: password
+      - key: DB_SCHEMA
+        value: webgis
+      - key: BACKEND_HOST
+        value: 0.0.0.0
+      - key: CORS_ORIGINS
+        value: "*"
+
+databases:
+  - name: chefchaouen-webgis-db
+    databaseName: chefchaouen_webgis
+    user: webgis_app
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"
