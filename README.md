@@ -2,7 +2,7 @@
 
 Application de suivi de l'occupation du sol (2019, 2025) et des changements à Chefchaouen. Le frontend React/MapLibre lit les statistiques, la limite d'étude et les rasters depuis le backend FastAPI/PostGIS. Voir la [documentation par phases](docs/README.md).
 
-La [notice des données et de la méthode](data/README.md) décrit les sources, les codes des classes, le calcul des superficies et les limites des résultats fournis par le collaborateur. Le [guide de publication](docs/07-publication-en-ligne.md) explique la mise en ligne sur Cloudflare Workers et Render.
+La [notice des données et de la méthode](data/README.md) décrit les sources, les codes des classes, le calcul des superficies et les limites des résultats fournis par le collaborateur. Le [guide de publication](docs/07-publication-en-ligne.md) explique la mise en ligne gratuite sur Render.
 
 ## Démarrage local
 

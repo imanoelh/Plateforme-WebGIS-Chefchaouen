@@ -12,7 +12,7 @@ import {
   type LegendKind,
   type LayerId,
 } from "@/config/mapConfig";
-import { studyAreaBounds, webgisApi } from "@/lib/webgisApi";
+import { apiRetryDelay, retryApiRequest, studyAreaBounds, webgisApi } from "@/lib/webgisApi";
 import { MapView, type LayerState } from "@/components/webgis/MapView";
 import { CoordinatesDisplay, MapControls } from "@/components/webgis/MapControls";
 import { LayerManager } from "@/components/webgis/LayerManager";
@@ -55,31 +55,36 @@ function WebGIS() {
     queryKey: ["webgis", "summary"],
     queryFn: webgisApi.summary,
     staleTime: 300_000,
-    retry: 1,
+    retry: retryApiRequest,
+    retryDelay: apiRetryDelay,
   });
   const transitionsQuery = useQuery({
     queryKey: ["webgis", "transitions"],
     queryFn: webgisApi.transitions,
     staleTime: 300_000,
-    retry: 1,
+    retry: retryApiRequest,
+    retryDelay: apiRetryDelay,
   });
   const legendQuery = useQuery({
     queryKey: ["webgis", "legend"],
     queryFn: webgisApi.legend,
     staleTime: 300_000,
-    retry: 1,
+    retry: retryApiRequest,
+    retryDelay: apiRetryDelay,
   });
   const studyAreaQuery = useQuery({
     queryKey: ["webgis", "study-area"],
     queryFn: webgisApi.studyArea,
     staleTime: 300_000,
-    retry: 1,
+    retry: retryApiRequest,
+    retryDelay: apiRetryDelay,
   });
   const rastersQuery = useQuery({
     queryKey: ["webgis", "rasters"],
     queryFn: webgisApi.rasters,
     staleTime: 300_000,
-    retry: 1,
+    retry: retryApiRequest,
+    retryDelay: apiRetryDelay,
   });
   const [layers, setLayers] = useState<LayerState>(
     () =>

@@ -1,5 +1,23 @@
 services:
   - type: web
+    name: chefchaouen-webgis
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: ./frontend/.output/public
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: 22.23.3
+      - key: VITE_API_URL
+        fromService:
+          name: chefchaouen-webgis-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  - type: web
     name: chefchaouen-webgis-api
     runtime: docker
     plan: free

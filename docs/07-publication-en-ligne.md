@@ -10,23 +10,23 @@ Architecture préparée :
 Navigateur du collaborateur
           |
           v
-Cloudflare Workers — interface publique
+Render Static Site — interface publique
           |
           v
 Render — API FastAPI — réseau privé — PostgreSQL/PostGIS Raster
 ```
 
-Le dépôt contient [`render.yaml`](../render.yaml), un Blueprint Render qui prépare l'API et la base. Render annonce la prise en charge de `postgis` et `postgis_raster`. Le site utilise le preset Cloudflare Workers déjà généré par le build TanStack Start/Nitro.
+Le dépôt contient [`render.yaml`](../render.yaml), un Blueprint Render qui prépare les trois ressources gratuites : site statique, API et base. Render annonce la prise en charge de `postgis` et `postgis_raster`. Le frontend est préconstruit en HTML et JavaScript; il n'a pas besoin d'un serveur Node en fonctionnement.
 
 ## 1. Publier le code sur GitHub
 
-Le dépôt distant `origin` est déjà configuré. Vérifier que seuls les fichiers du projet sont préparés pour le commit. Ne jamais ajouter `.env`, `backend/.env`, `frontend/.env` ni `backup/` : ces fichiers restent locaux et sont exclus par `.gitignore`. Publier ensuite la branche `main` sur GitHub.
+Le dépôt distant `origin` est déjà configuré et la branche `main` est publiée sur GitHub. Ne jamais ajouter `.env`, `backend/.env`, `frontend/.env` ni `backup/` : ces fichiers restent locaux et sont exclus par `.gitignore`. Pousser les mises à jour de `main` avant de créer ou de synchroniser le Blueprint.
 
-## 2. Créer l'API et la base hébergées
+## 2. Créer le site, l'API et la base hébergés
 
-Dans Render, connecter le dépôt GitHub, puis créer un **Blueprint** à partir de `render.yaml`. Les noms et variables de connexion sont fournis par la configuration; Render garde la base accessible à l'API sur son réseau privé. L'API est publique et en lecture seule (`GET`).
+Dans Render, connecter le dépôt GitHub, puis créer un **Blueprint** à partir de `render.yaml`. Vérifier que les trois ressources affichent le plan gratuit avant de confirmer : `chefchaouen-webgis` (site statique), `chefchaouen-webgis-api` (API) et `chefchaouen-webgis-db` (PostgreSQL). Les variables de connexion sont fournies par la configuration; Render garde la base accessible à l'API sur son réseau privé. L'adresse publique de l'API est transmise automatiquement au build du site. L'API est publique et en lecture seule (`GET`).
 
-Le plan gratuit permet une démonstration sans frais, mais Render met en veille les services web inactifs et supprime une base PostgreSQL gratuite après 30 jours. Choisir une base payante avant de créer les ressources si le lien doit rester disponible au-delà de cette période. Voir la [tarification Render](https://render.com/pricing) et les [limites des plans gratuits](https://render.com/docs/free).
+Cette configuration utilise uniquement les plans gratuits. Render met en veille l'API après 15 minutes d'inactivité; la première ouverture peut prendre environ une minute. Le frontend attend et relance les requêtes transitoires pendant le réveil de l'API. La base PostgreSQL gratuite expire 30 jours après sa création. Pour prolonger une démonstration gratuite, garder le dump local dans `backup/`, créer une nouvelle base gratuite après expiration et restaurer les données à nouveau; l'ancienne base ne reste pas accessible. Render ne fournit pas de sauvegarde automatique pour la base gratuite. Voir les [limites des plans gratuits](https://render.com/docs/free).
 
 ## 3. Restaurer les données PostGIS
 
@@ -63,22 +63,12 @@ Remplacer les quatre valeurs entre chevrons par celles de Render. Le dump contie
 
 Après restauration, contrôler `/api/health`, `/api/dashboard/summary` et `/api/rasters/diagnostics/classes`. Les valeurs de superficie doivent inclure la zone à **8 084,5 ha**. Retirer ensuite l'adresse IP temporaire de la liste d'accès; l'API communique avec la base via le réseau privé Render.
 
-## 4. Publier le frontend
+## 4. Vérifier le frontend publié
 
-Connecter le même dépôt dans Cloudflare Workers Builds. Sélectionner `frontend/` comme répertoire du projet, puis configurer :
-
-| Paramètre | Valeur |
-| --- | --- |
-| Branche | `main` |
-| Installation | `npm ci` |
-| Build | `npm run build` |
-| Déploiement | `npx nitro deploy --prebuilt` |
-| Variable de build | `VITE_API_URL=https://<nom-api>.onrender.com` |
-
-La variable `VITE_API_URL` doit être présente **au moment du build**, car l'adresse de l'API est intégrée au JavaScript du frontend. Cloudflare attribue une adresse `*.workers.dev`; cette adresse devient le lien à transmettre au collaborateur. Les mises à jour de `main` redéploient les services connectés.
+Le Blueprint construit et publie automatiquement `chefchaouen-webgis` depuis `frontend/.output/public`. Vérifier dans Render que le build du site a réussi et que son adresse `https://chefchaouen-webgis.onrender.com` s'ouvre. Si Render attribue un autre sous-domaine, utiliser l'adresse indiquée dans son tableau de bord. La variable `VITE_API_URL` est injectée automatiquement depuis l'adresse publique de l'API au moment du build; une modification de cette adresse nécessite une reconstruction du site.
 
 ## 5. Vérification depuis un autre ordinateur
 
-Ouvrir le lien Cloudflare dans une fenêtre privée ou depuis un autre réseau. Vérifier le fond de carte, les couches 2019/2025/changements, la comparaison, les légendes, les statistiques et une valeur ponctuelle. Vérifier également `https://<nom-api>.onrender.com/api/health` et la réponse des rasters. La première requête peut être lente si le service gratuit Render sort de veille.
+Ouvrir le lien du site Render dans une fenêtre privée ou depuis un autre réseau. Vérifier le fond de carte, les couches 2019/2025/changements, la comparaison, les légendes, les statistiques et une valeur ponctuelle. Vérifier également `https://<nom-api>.onrender.com/api/health` et la réponse des rasters. La première requête peut être lente si le service gratuit Render sort de veille.
 
 Le collaborateur n'a besoin que du lien navigateur. L'export initial des données et la configuration des services hébergés sont réalisés une fois par la personne qui possède les comptes de déploiement.

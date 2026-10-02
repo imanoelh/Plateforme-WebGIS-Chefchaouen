@@ -40,6 +40,6 @@ Les statistiques et couches métier affichées par le frontend proviennent déso
 - [`backend/`](../backend/) : API FastAPI et tests d'intégration.
 - [`docker-compose.yml`](../docker-compose.yml) : services PostGIS et backend.
 - [`backend/README.md`](../backend/README.md) : commandes de démarrage du backend.
-- [`docs/07-publication-en-ligne.md`](07-publication-en-ligne.md) : guide GitHub, Render et Cloudflare.
+- [`docs/07-publication-en-ligne.md`](07-publication-en-ligne.md) : guide GitHub et déploiement gratuit sur Render.
 
 Les fichiers `.env` contiennent une configuration locale et ne doivent pas être copiés dans la documentation ni publiés.

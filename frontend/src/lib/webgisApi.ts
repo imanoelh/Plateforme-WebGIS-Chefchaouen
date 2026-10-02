@@ -83,8 +83,29 @@ export function apiUrl(path: string): string {
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(apiUrl(path));
-  if (!response.ok) throw new Error(`API ${path}: HTTP ${response.status}`);
+  if (!response.ok) throw new ApiRequestError(path, response.status);
   return response.json() as Promise<T>;
+}
+
+class ApiRequestError extends Error {
+  constructor(
+    path: string,
+    readonly status: number,
+  ) {
+    super(`API ${path}: HTTP ${status}`);
+  }
+}
+
+// Render's free API can take roughly a minute to wake after inactivity.
+// Keep initial queries pending during transient startup responses.
+export function retryApiRequest(failureCount: number, error: Error): boolean {
+  if (failureCount >= 8) return false;
+  if (error instanceof ApiRequestError) return error.status >= 500 && error.status < 600;
+  return error instanceof TypeError || error instanceof SyntaxError;
+}
+
+export function apiRetryDelay(attempt: number): number {
+  return Math.min(2_000 * 2 ** attempt, 10_000);
 }
 
 export const webgisApi = {
