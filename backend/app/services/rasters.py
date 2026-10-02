@@ -1,7 +1,8 @@
 import json
-import re
+from io import BytesIO
 from functools import lru_cache
 
+from PIL import Image
 from sqlalchemy import text
 
 from app.database import engine
@@ -61,35 +62,38 @@ def metadata_for(raster_id: str) -> dict:
     return next(item for item in raster_metadata() if item["id"] == raster_id)
 
 
-def _colormap(entries: list[dict]) -> str:
-    if not entries:
-        raise RuntimeError("Raster legend is empty")
-    lines = []
-    for entry in entries:
-        color = entry["hex_color"]
-        if not re.fullmatch(r"#[0-9A-Fa-f]{6}", color):
-            raise RuntimeError("Invalid legend color")
-        red, green, blue = bytes.fromhex(color[1:])
-        lines.append(f"{entry['value']} {red} {green} {blue} 255")
-    lines.append("nv 0 0 0 0")
-    return "\n".join(lines)
-
-
 @lru_cache(maxsize=3)
 def raster_png(raster_id: str) -> bytes:
     table = _table(raster_id)
     legend_type = RASTERS[raster_id]["legend_type"]
     with engine.connect() as connection:
-        colors = _colormap(legend(connection, legend_type))
-        # Local to this transaction: the database configuration is not changed.
-        connection.execute(text("SET LOCAL postgis.gdal_enabled_drivers = 'PNG'"))
-        png = connection.execute(text(f"""
-            SELECT ST_AsPNG(ST_ColorMap(ST_Union(rast), 1, :colors, 'EXACT'))
+        entries = legend(connection, legend_type)
+        # Read the classified values from PostGIS and encode the PNG in Python.
+        # This avoids relying on server-side GDAL output drivers, which are not
+        # enabled on every managed PostgreSQL provider (including Render).
+        values = connection.execute(text(f"""
+            SELECT ST_DumpValues(ST_Union(rast), 1, false)
             FROM {table}
-        """), {"colors": colors}).scalar_one()
-    if not png:
+        """)).scalar_one()
+    if not values:
         raise RuntimeError("Raster has no pixels")
-    return bytes(png)
+    palette = {
+        int(entry["value"]): (*bytes.fromhex(entry["hex_color"][1:]), 255)
+        for entry in entries
+    }
+    height = len(values)
+    width = len(values[0]) if height else 0
+    if not width or any(len(row) != width for row in values):
+        raise RuntimeError("Raster matrix is invalid")
+    image = Image.new("RGBA", (width, height))
+    image.putdata([
+        palette.get(int(value), (0, 0, 0, 0)) if value is not None else (0, 0, 0, 0)
+        for row in values
+        for value in row
+    ])
+    output = BytesIO()
+    image.save(output, format="PNG", optimize=True)
+    return output.getvalue()
 
 
 def pixel_value(raster_id: str, longitude: float, latitude: float) -> dict:

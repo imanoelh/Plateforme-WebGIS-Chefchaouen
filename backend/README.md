@@ -20,7 +20,7 @@ Install `backend/requirements.txt`, copy `backend/.env.example` to `backend/.env
 
 ## Raster delivery
 
-`GET /api/rasters` returns the geographic corner coordinates for MapLibre image sources. `GET /api/rasters/{id}/image.png` builds a transparent RGBA PNG from the existing 16 PostGIS tiles, using class colors from `webgis.legend`. The PNG driver is enabled only for that database transaction. Each raster PNG is cached in the backend process after its first request; restart the backend if raster or legend contents change. Source tables and SRIDs remain unchanged.
+`GET /api/rasters` returns the geographic corner coordinates for MapLibre image sources. `GET /api/rasters/{id}/image.png` builds a transparent RGBA PNG from the existing 16 PostGIS tiles, using class colors from `webgis.legend`. PostGIS supplies the classified pixel matrix and Pillow encodes the PNG, so the endpoint does not depend on server-side GDAL output drivers. Each raster PNG is cached in the backend process after its first request; restart the backend if raster or legend contents change. Source tables and SRIDs remain unchanged.
 
 The frontend can add each image using the `coordinates` array from metadata and the `image_url` path, then toggle visibility for 2019, 2025, or change. A client side split view can compare the 2019 and 2025 image layers. There is no GeoServer in the current Compose stack.
 
