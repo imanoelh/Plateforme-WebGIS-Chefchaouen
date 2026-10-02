@@ -1,0 +1,221 @@
+PLATEFORME WEBGIS CHEFCHAOUEN
+Notice de consultation, de partage et de déploiement
+Version du 2 octobre 2026
+
+======================================================================
+1. LIENS DU PROJET
+======================================================================
+
+Application en ligne :
+https://chefchaouen-webgis.onrender.com
+
+Code source GitHub :
+https://github.com/imanoelh/Plateforme-WebGIS-Chefchaouen
+
+API publique :
+https://chefchaouen-webgis-api.onrender.com
+
+État de l'API :
+https://chefchaouen-webgis-api.onrender.com/api/health
+
+Le collaborateur peut consulter l'application avec un navigateur récent.
+Il n'a pas besoin d'installer Docker, PostgreSQL, PostGIS, QGIS ou Node.js.
+
+Si le dépôt GitHub est privé, son propriétaire doit inviter le collaborateur
+depuis GitHub avant de lui transmettre le lien du code source.
+
+======================================================================
+2. OBJECTIF DE L'APPLICATION
+======================================================================
+
+Cette application WebSIG présente l'évolution de l'occupation du sol dans la
+zone de Chefchaouen et du Jbel El Kelaa entre 2019 et 2025.
+
+Elle permet de :
+
+- afficher la carte d'occupation du sol de 2019 ;
+- afficher la carte d'occupation du sol de 2025 ;
+- afficher la carte des changements entre 2019 et 2025 ;
+- afficher la limite de la zone d'étude ;
+- utiliser un fond satellite Esri ou un fond de plan OpenStreetMap ;
+- régler la visibilité et la transparence des couches ;
+- comparer 2019 et 2025 par balayage ou par transparence ;
+- consulter la classe d'un pixel en cliquant sur la carte ;
+- consulter les superficies, changements, transitions et précisions ;
+- consulter la légende et les informations méthodologiques.
+
+Les résultats statistiques affichés proviennent des tableaux fournis par le
+collaborateur et enregistrés dans PostgreSQL/PostGIS. L'application ne recalcule
+pas ces superficies à chaque consultation.
+
+======================================================================
+3. DONNÉES PRÉSENTÉES
+======================================================================
+
+Les trois couches raster sont des GeoTIFF à 10 mètres de résolution, en
+EPSG:32630 :
+
+- occupation du sol 2019 ;
+- occupation du sol 2025 ;
+- changements 2019-2025.
+
+Classes d'occupation du sol :
+
+1. Forest
+2. Shrubland/grassland
+3. Cropland
+4. Built-up
+5. Bare/sparse
+6. Water
+
+Classes de changement :
+
+1. Stable
+2. Forest loss
+3. Forest gain
+4. Other change
+
+Principaux résultats affichés :
+
+- superficie de la zone d'étude : 8 084,5 ha ;
+- forêt en 2019 : 3 426,34 ha ;
+- forêt en 2025 : 3 357,39 ha ;
+- changement forestier net : -68,95 ha ;
+- perte forestière : 261,13 ha ;
+- gain forestier : 192,19 ha ;
+- superficie stable : 7 245,14 ha ;
+- autres changements : 386,02 ha ;
+- précision globale 2019 : 77,6 %, kappa 0,72 ;
+- précision globale 2025 : 75,7 %, kappa 0,70.
+
+Les valeurs publiées ont été comparées aux fichiers CSV livrés. Les superficies,
+les quatre catégories de changement, les 28 transitions et les résultats de
+précision correspondent aux données sources.
+
+======================================================================
+4. MODE DE CONSULTATION
+======================================================================
+
+1. Ouvrir https://chefchaouen-webgis.onrender.com.
+
+2. Attendre le chargement des données. Avec l'offre gratuite Render, l'API peut
+   être en veille. Le premier chargement peut prendre environ une minute.
+
+3. Choisir le fond de carte :
+   - Satellite : imagerie Esri World Imagery ;
+   - Plan : OpenStreetMap.
+
+4. Cocher la couche souhaitée dans le panneau de gauche :
+   - Land Cover 2019 ;
+   - Land Cover 2025 ;
+   - Forest Change 2019-2025 ;
+   - Study Area Boundary.
+
+5. Utiliser le curseur Opacity pour modifier la transparence de la couche.
+
+6. Cliquer sur Compare 2019 / 2025 pour comparer les deux dates :
+   - Swipe : déplacer la barre verticale ;
+   - Opacity : mélanger les deux cartes avec le curseur.
+
+7. Cliquer sur la carte pour consulter les classes 2019, 2025 et changement au
+   point choisi.
+
+8. Consulter le panneau de droite pour afficher :
+   - les indicateurs principaux ;
+   - le graphique 2019/2025 ;
+   - la répartition des changements ;
+   - le tableau des transitions ;
+   - les précisions de classification.
+
+9. Utiliser les boutons +, -, accueil et plein écran pour naviguer dans la carte.
+
+======================================================================
+5. ARCHITECTURE ET DÉPLOIEMENT
+======================================================================
+
+Le déploiement comprend trois ressources Render :
+
+1. chefchaouen-webgis
+   Site statique contenant l'interface React, MapLibre et les graphiques.
+
+2. chefchaouen-webgis-api
+   API FastAPI qui lit les données et les rasters dans PostGIS.
+
+3. chefchaouen-webgis-db
+   Base PostgreSQL 16 avec les extensions PostGIS et PostGIS Raster.
+
+Le fichier render.yaml du dépôt décrit ces trois ressources. Après chaque
+publication sur la branche main de GitHub, Render reconstruit automatiquement
+les services concernés.
+
+Chaîne de consultation :
+
+Navigateur -> site React/MapLibre -> API FastAPI -> PostgreSQL/PostGIS
+
+Les identifiants et mots de passe de la base ne sont pas enregistrés dans le
+dépôt GitHub. Ils sont gérés par les variables d'environnement Render.
+
+======================================================================
+6. DURÉE ET LIMITES DE LA VERSION GRATUITE
+======================================================================
+
+Cette adresse sert de version de démonstration gratuite.
+
+La base PostgreSQL gratuite Render expire 30 jours après sa création. La base
+actuelle ayant été créée le 2 octobre 2026, son expiration est estimée autour du
+1er novembre 2026. La date exacte affichée dans le tableau de bord Render reste
+la référence.
+
+Après expiration de la base :
+
+- les fonds de carte et l'interface peuvent encore s'afficher ;
+- les couches métier et les statistiques ne seront plus disponibles ;
+- l'ancienne base devient inaccessible ;
+- Render prévoit une période de grâce de 14 jours pour passer à une offre
+  payante, puis supprime la base et ses données.
+
+Autres limites de l'offre gratuite :
+
+- l'API se met en veille après 15 minutes sans requête ;
+- son redémarrage peut prendre environ une minute ;
+- la base gratuite ne dispose pas de sauvegardes automatiques ;
+- la capacité de stockage de la base gratuite est limitée à 1 Go.
+
+Pour maintenir une démonstration gratuite après l'expiration, il faut créer une
+nouvelle base Render gratuite, restaurer la sauvegarde PostGIS conservée
+localement, puis vérifier l'API et les couches.
+
+Documentation officielle des limites Render :
+https://render.com/docs/free
+
+======================================================================
+7. ÉTAT DE VALIDATION AU 2 OCTOBRE 2026
+======================================================================
+
+- site public accessible en HTTPS ;
+- frontend connecté à l'API Render ;
+- base PostgreSQL connectée ;
+- PostGIS et PostGIS Raster opérationnels ;
+- trois couches raster accessibles ;
+- légendes cohérentes avec les codes raster ;
+- statistiques cohérentes avec les CSV fournis ;
+- superficie de la zone corrigée à 8 084,5 ha ;
+- consultation ponctuelle des pixels opérationnelle ;
+- code publié sur GitHub ;
+- favicon personnalisé du projet installé.
+
+Cette application constitue un produit de démonstration et de présentation du
+projet. Les résultats de classification ne remplacent pas une validation de
+terrain et ne doivent pas être utilisés seuls pour une décision juridique ou de
+gestion.
+
+======================================================================
+8. CRÉDITS
+======================================================================
+
+Analyse satellitaire : Mohamed Chikh Essbiti
+Développement WebGIS : Imane Elhamri
+
+Sources : Copernicus Sentinel-2, ESA WorldCover, Google Cloud Score+,
+NASA/USGS SRTM, Esri World Imagery et OpenStreetMap.
+
