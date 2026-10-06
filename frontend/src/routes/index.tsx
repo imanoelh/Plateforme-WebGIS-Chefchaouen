@@ -303,7 +303,8 @@ function WebGIS() {
                 className="flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground shadow-panel transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Columns2 className="h-4 w-4" />
-                Compare 2019 / 2025
+                <span className="md:hidden">Compare</span>
+                <span className="hidden md:inline">Compare 2019 / 2025</span>
               </button>
             )}
           </div>
