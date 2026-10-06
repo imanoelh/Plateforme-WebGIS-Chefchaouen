@@ -15,6 +15,25 @@ const FACTS: [string, string][] = [
   ["Classification method", "Random Forest"],
 ];
 
+const PROCESSING_STEPS = [
+  {
+    title: "Data preparation",
+    text: "Sentinel-2 Level-2A harmonized surface reflectance was processed in Google Earth Engine. A median composite was created from June to September for each year, with Cloud Score+ masking cloudy observations (cs_cdf ≥ 0.60).",
+  },
+  {
+    title: "Predictor variables",
+    text: "Ten spectral bands (B2–B8A, B11 and B12), NDVI, NBR and MNDWI were combined with 30 m SRTM elevation and slope.",
+  },
+  {
+    title: "Classification",
+    text: "Stratified samples were drawn from areas where ESA WorldCover 2020 and 2021 agree. The documented split is 70% training and 30% validation; a 300-tree Random Forest was trained for each year.",
+  },
+  {
+    title: "Post-processing",
+    text: "A 3 × 3 majority filter was applied to each classified map.",
+  },
+];
+
 export function AboutModal({
   open,
   onOpenChange,
@@ -36,6 +55,15 @@ export function AboutModal({
       ];
     }),
   ];
+  const accuracyText = ([2019, 2025] as const)
+    .map((year) => {
+      const item = accuracy?.find((entry) => entry.year === year);
+      return item
+        ? `${year}: ${(item.overall_accuracy * 100).toFixed(1)}% Overall Accuracy, κ ${item.kappa.toFixed(2)}`
+        : null;
+    })
+    .filter((value): value is string => value !== null)
+    .join("; ");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
@@ -53,6 +81,39 @@ export function AboutModal({
             </div>
           ))}
         </dl>
+        {section === "methodology" && (
+          <section>
+            <h4 className="label-caps mb-2">Processing workflow</h4>
+            <ol className="space-y-2">
+              {PROCESSING_STEPS.map((step, index) => (
+                <li key={step.title} className="rounded-md border bg-muted/40 p-3 text-sm">
+                  <div className="flex gap-2">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold">{step.title}</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{step.text}</p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+              <li className="rounded-md border bg-muted/40 p-3 text-sm">
+                <div className="flex gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                    5
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold">Accuracy assessment</p>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      Accuracy was assessed with 577 validation points per year. {accuracyText || "Accuracy values are unavailable."} The validation labels are derived from WorldCover and are not independent field observations.
+                    </p>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </section>
+        )}
         <p className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
           The accuracy values represent agreement with WorldCover-derived validation labels and do
           not constitute independent field validation. Gross forest change may be affected by
