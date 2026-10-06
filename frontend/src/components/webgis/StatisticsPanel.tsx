@@ -23,6 +23,11 @@ const tooltipStyle = {
 const fmtHa = (value: number, digits = 2) =>
   value.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
+// The longest official land-cover class is "Shrubland/grassland". Reserve
+// enough Y-axis space for it at every Statistics panel width without changing
+// the data label itself.
+const LAND_COVER_AXIS_WIDTH = 124;
+
 function KPICards({ summary }: { summary: DashboardSummary }) {
   const forest = (year: "2019" | "2025") =>
     summary.landcover[year].find((item) => item.value === 1)?.area_ha;
@@ -75,7 +80,8 @@ function LandCoverChart({ landcover }: { landcover: DashboardSummary["landcover"
           <YAxis
             type="category"
             dataKey="name"
-            width={92}
+            width={LAND_COVER_AXIS_WIDTH}
+            tickMargin={8}
             tick={{ fontSize: 10 }}
             stroke="var(--muted-foreground)"
           />
