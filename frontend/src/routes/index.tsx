@@ -208,7 +208,7 @@ function WebGIS() {
   );
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="webgis-app-shell flex h-screen flex-col overflow-hidden">
       <Header
         onAbout={() => setAbout("about")}
         onMethodology={() => setAbout("methodology")}
@@ -308,7 +308,7 @@ function WebGIS() {
           </div>
 
           {/* Mobile floating buttons */}
-          <div className="absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2 md:hidden">
+          <div className="webgis-mobile-actions absolute bottom-10 left-1/2 z-20 flex -translate-x-1/2 gap-2 md:hidden">
             <FabBtn
               icon={<Layers className="h-4 w-4" />}
               label="Layers"

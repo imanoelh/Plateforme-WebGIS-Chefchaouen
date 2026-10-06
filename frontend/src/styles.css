@@ -103,3 +103,15 @@
   font-family: var(--font-mono);
 }
 .maplibregl-popup-content { padding: 0; border-radius: var(--radius); background: var(--card); }
+
+/* Android Chrome's browser controls can overlap a 100vh layout. Keep desktop
+   dimensions unchanged while mobile follows the visible dynamic viewport. */
+@media (max-width: 767px) {
+  .webgis-app-shell {
+    height: 100dvh;
+  }
+
+  .webgis-mobile-actions {
+    bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
