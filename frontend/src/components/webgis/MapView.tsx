@@ -11,7 +11,7 @@ import {
   type BasemapId,
   type LayerId,
 } from "@/config/mapConfig";
-import { apiUrl, type RasterMetadata, type StudyArea } from "@/lib/webgisApi";
+import { apiUrl, studyAreaBounds, type RasterMetadata, type StudyArea } from "@/lib/webgisApi";
 
 export type LayerState = Record<LayerId, { visible: boolean; opacity: number }>;
 
@@ -47,6 +47,7 @@ export function MapView({
   const ref = useRef<HTMLDivElement>(null);
   const compareRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MLMap | null>(null);
+  const hasInitialFit = useRef(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const stateRef = useRef(layerState);
@@ -141,6 +142,23 @@ export function MapView({
     }
     applyState(map, stateRef.current);
   }, [mapReady, rasters, studyArea]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const bounds = studyAreaBounds(studyArea);
+    if (!map || !mapReady || !bounds || hasInitialFit.current) return;
+
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
+    map.fitBounds(bounds, {
+      // Mobile keeps the full study area clear of the compare control, map tools,
+      // and the Layers/Statistics actions. Desktop keeps balanced map margins.
+      padding: mobile
+        ? { top: 72, right: 72, bottom: 144, left: 32 }
+        : { top: 64, right: 64, bottom: 48, left: 48 },
+      duration: 0,
+    });
+    hasInitialFit.current = true;
+  }, [mapReady, studyArea]);
 
   useEffect(() => {
     if (mapRef.current && mapReady) applyState(mapRef.current, layerState);
