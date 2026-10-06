@@ -60,6 +60,8 @@ export function MapView({
   useEffect(() => {
     let cancelled = false;
     let map: MLMap | undefined;
+    let mobileQuery: MediaQueryList | undefined;
+    let updateAttributionLayout: ((event: MediaQueryListEvent) => void) | undefined;
     maplibregl.setWorkerUrl(maplibreWorkerUrl);
     setMapError(null);
     Promise.resolve()
@@ -70,10 +72,21 @@ export function MapView({
           style: BASEMAP_STYLE,
           center: MAP_CENTER,
           zoom: MAP_ZOOM,
-          attributionControl: { compact: false },
+          attributionControl: false,
         });
         map = createdMap;
+        mobileQuery = window.matchMedia("(max-width: 767px)");
+        let attributionControl = new maplibregl.AttributionControl({
+          compact: mobileQuery.matches,
+        });
+        createdMap.addControl(attributionControl, "bottom-right");
         createdMap.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
+        updateAttributionLayout = (event: MediaQueryListEvent) => {
+          createdMap.removeControl(attributionControl);
+          attributionControl = new maplibregl.AttributionControl({ compact: event.matches });
+          createdMap.addControl(attributionControl, "bottom-right");
+        };
+        mobileQuery.addEventListener("change", updateAttributionLayout);
         mapRef.current = createdMap;
         const ready = () => {
           map?.resize();
@@ -98,6 +111,9 @@ export function MapView({
       });
     return () => {
       cancelled = true;
+      if (mobileQuery && updateAttributionLayout) {
+        mobileQuery.removeEventListener("change", updateAttributionLayout);
+      }
       map?.remove();
       mapRef.current = null;
     };

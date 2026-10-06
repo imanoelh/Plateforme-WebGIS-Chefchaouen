@@ -114,4 +114,11 @@
   .webgis-mobile-actions {
     bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
   }
+
+  /* Keep MapLibre's compact attribution and scale above the device safe area.
+     The mobile actions remain higher, centered between these two corner controls. */
+  .maplibregl-ctrl-bottom-left,
+  .maplibregl-ctrl-bottom-right {
+    bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
