@@ -170,6 +170,22 @@ function WebGIS() {
     }
   };
 
+  const closePopup = useCallback(() => {
+    // Invalidate an in-flight pixel lookup before unmounting the React popup.
+    popupRequest.current++;
+    setPopup(null);
+  }, []);
+
+  const openMobileSheet = (nextSheet: Exclude<MobileSheet, null>) => {
+    closePopup();
+    setSheet(nextSheet);
+  };
+
+  const openStatisticsPanel = () => {
+    closePopup();
+    setRightOpen(true);
+  };
+
   const toggle = (id: LayerId) =>
     setLayers((s) => ({ ...s, [id]: { ...s[id], visible: !s[id].visible } }));
   const opacity = (id: LayerId, v: number) =>
@@ -254,10 +270,7 @@ function WebGIS() {
           {popup && (
             <MapPopup
               info={popup}
-              onClose={() => {
-                popupRequest.current++;
-                setPopup(null);
-              }}
+              onClose={closePopup}
             />
           )}
           {(rastersQuery.isError || studyAreaQuery.isError) && (
@@ -271,7 +284,7 @@ function WebGIS() {
 
           {!leftOpen && <Reopen side="left" label="Layers" onClick={() => setLeftOpen(true)} />}
           {!rightOpen && (
-            <Reopen side="right" label="Statistics" onClick={() => setRightOpen(true)} />
+            <Reopen side="right" label="Statistics" onClick={openStatisticsPanel} />
           )}
 
           <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
@@ -312,12 +325,12 @@ function WebGIS() {
             <FabBtn
               icon={<Layers className="h-4 w-4" />}
               label="Layers"
-              onClick={() => setSheet("layers")}
+              onClick={() => openMobileSheet("layers")}
             />
             <FabBtn
               icon={<BarChart3 className="h-4 w-4" />}
               label="Statistics"
-              onClick={() => setSheet("stats")}
+              onClick={() => openMobileSheet("stats")}
             />
           </div>
           {sheet && (
