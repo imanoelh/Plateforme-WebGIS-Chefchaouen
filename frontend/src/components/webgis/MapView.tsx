@@ -76,15 +76,24 @@ export function MapView({
         });
         map = createdMap;
         mobileQuery = window.matchMedia("(max-width: 767px)");
+        const collapseMobileAttribution = () => {
+          const attribution = createdMap
+            .getContainer()
+            .querySelector<HTMLElement>(".maplibregl-ctrl-attrib.maplibregl-compact");
+          attribution?.classList.remove("maplibregl-compact-show");
+          attribution?.removeAttribute("open");
+        };
         let attributionControl = new maplibregl.AttributionControl({
           compact: mobileQuery.matches,
         });
         createdMap.addControl(attributionControl, "bottom-right");
+        if (mobileQuery.matches) collapseMobileAttribution();
         createdMap.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
         updateAttributionLayout = (event: MediaQueryListEvent) => {
           createdMap.removeControl(attributionControl);
           attributionControl = new maplibregl.AttributionControl({ compact: event.matches });
           createdMap.addControl(attributionControl, "bottom-right");
+          if (event.matches) collapseMobileAttribution();
         };
         mobileQuery.addEventListener("change", updateAttributionLayout);
         mapRef.current = createdMap;
