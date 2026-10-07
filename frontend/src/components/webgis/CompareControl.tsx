@@ -73,7 +73,7 @@ export function SwipeDivider({
       <div className="absolute left-3 top-3 rounded bg-chrome px-2 py-1 font-mono text-xs text-chrome-foreground">
         2019
       </div>
-      <div className="absolute right-3 top-3 rounded bg-chrome px-2 py-1 font-mono text-xs text-chrome-foreground">
+      <div className="absolute right-3 top-3 rounded bg-chrome px-2 py-1 font-mono text-xs text-chrome-foreground md:right-16">
         2025
       </div>
       <div

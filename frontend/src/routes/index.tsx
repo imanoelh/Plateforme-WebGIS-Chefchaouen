@@ -186,6 +186,17 @@ function WebGIS() {
     setRightOpen(true);
   };
 
+  const openCompare = () => {
+    // Each comparison starts with an even, predictable 2019/2025 split.
+    setSwipe(0.5);
+    setCompare("swipe");
+  };
+
+  const setCompareMode = (mode: CompareMode) => {
+    if (mode === "swipe") setSwipe(0.5);
+    setCompare(mode);
+  };
+
   const toggle = (id: LayerId) =>
     setLayers((s) => ({ ...s, [id]: { ...s[id], visible: !s[id].visible } }));
   const opacity = (id: LayerId, v: number) =>
@@ -291,14 +302,14 @@ function WebGIS() {
             {compare ? (
               <CompareBar
                 mode={compare}
-                onMode={setCompare}
+                onMode={setCompareMode}
                 blend={blend}
                 onBlend={setBlend}
                 onClose={() => setCompare(null)}
               />
             ) : (
               <button
-                onClick={() => setCompare("swipe")}
+                onClick={openCompare}
                 disabled={!compareAvailable}
                 className="flex items-center gap-2 rounded-md bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground shadow-panel transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
