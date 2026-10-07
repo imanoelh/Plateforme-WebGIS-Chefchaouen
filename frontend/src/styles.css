@@ -78,8 +78,13 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html, body { height: 100%; }
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    height: 100%;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -87,7 +92,9 @@
   }
 }
 
-@utility shadow-panel { box-shadow: var(--shadow-panel); }
+@utility shadow-panel {
+  box-shadow: var(--shadow-panel);
+}
 @utility label-caps {
   font-size: 0.65rem;
   letter-spacing: 0.12em;
@@ -102,7 +109,11 @@
   color: var(--foreground);
   font-family: var(--font-mono);
 }
-.maplibregl-popup-content { padding: 0; border-radius: var(--radius); background: var(--card); }
+.maplibregl-popup-content {
+  padding: 0;
+  border-radius: var(--radius);
+  background: var(--card);
+}
 
 /* Android Chrome's browser controls can overlap a 100vh layout. Keep desktop
    dimensions unchanged while mobile follows the visible dynamic viewport. */

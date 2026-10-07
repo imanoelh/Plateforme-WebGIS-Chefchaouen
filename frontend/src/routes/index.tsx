@@ -278,12 +278,7 @@ function WebGIS() {
           {compare === "swipe" && compareAvailable && (
             <SwipeDivider position={swipe} onChange={setSwipe} />
           )}
-          {popup && (
-            <MapPopup
-              info={popup}
-              onClose={closePopup}
-            />
-          )}
+          {popup && <MapPopup info={popup} onClose={closePopup} />}
           {(rastersQuery.isError || studyAreaQuery.isError) && (
             <p
               role="alert"
@@ -294,9 +289,7 @@ function WebGIS() {
           )}
 
           {!leftOpen && <Reopen side="left" label="Layers" onClick={() => setLeftOpen(true)} />}
-          {!rightOpen && (
-            <Reopen side="right" label="Statistics" onClick={openStatisticsPanel} />
-          )}
+          {!rightOpen && <Reopen side="right" label="Statistics" onClick={openStatisticsPanel} />}
 
           <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2">
             {compare ? (

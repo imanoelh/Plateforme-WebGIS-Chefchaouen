@@ -142,40 +142,44 @@ export function AboutModal({
                 </div>
               ))}
             </dl>
-          <section>
-            <h4 className="label-caps mb-2">Processing workflow</h4>
-            <ol className="space-y-2">
-              {PROCESSING_STEPS.map((step, index) => (
-                <li key={step.title} className="rounded-md border bg-muted/40 p-3 text-sm">
+            <section>
+              <h4 className="label-caps mb-2">Processing workflow</h4>
+              <ol className="space-y-2">
+                {PROCESSING_STEPS.map((step, index) => (
+                  <li key={step.title} className="rounded-md border bg-muted/40 p-3 text-sm">
+                    <div className="flex gap-2">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-semibold">{step.title}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          {step.text}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+                <li className="rounded-md border bg-muted/40 p-3 text-sm">
                   <div className="flex gap-2">
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                      {index + 1}
+                      5
                     </span>
                     <div className="min-w-0">
-                      <p className="font-semibold">{step.title}</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{step.text}</p>
+                      <p className="font-semibold">Accuracy assessment</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                        Accuracy was assessed with 577 validation points per year.{" "}
+                        {accuracyText || "Accuracy values are unavailable."} The validation labels
+                        are derived from WorldCover and are not independent field observations.
+                      </p>
                     </div>
                   </div>
                 </li>
-              ))}
-              <li className="rounded-md border bg-muted/40 p-3 text-sm">
-                <div className="flex gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
-                    5
-                  </span>
-                  <div className="min-w-0">
-                    <p className="font-semibold">Accuracy assessment</p>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Accuracy was assessed with 577 validation points per year. {accuracyText || "Accuracy values are unavailable."} The validation labels are derived from WorldCover and are not independent field observations.
-                    </p>
-                  </div>
-                </div>
-              </li>
-            </ol>
-          </section>
+              </ol>
+            </section>
             <p className="rounded-md bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
-              The accuracy values represent agreement with WorldCover-derived validation labels and do
-              not constitute independent field validation. Gross forest change may be affected by
+              The accuracy values represent agreement with WorldCover-derived validation labels and
+              do not constitute independent field validation. Gross forest change may be affected by
               classification confusion, particularly between forest and shrubland/grassland. This
               application is a demonstration/portfolio product and is not intended for legal or
               management decisions.

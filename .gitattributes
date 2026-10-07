@@ -1,0 +1,2 @@
+# Frontend source files must retain LF line endings for Prettier on every platform.
+frontend/src/** text eol=lf
