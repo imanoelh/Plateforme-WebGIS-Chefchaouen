@@ -9,7 +9,7 @@ export type BasemapId = "satellite" | "streets";
 export const DEFAULT_BASEMAP: BasemapId = "satellite";
 
 export const BASEMAPS: { id: BasemapId; title: string; description: string }[] = [
-  { id: "satellite", title: "Esri World Imagery", description: "Satellite basemap" },
+  { id: "satellite", title: "Satellite", description: "Esri World Imagery" },
   { id: "streets", title: "Plan", description: "OpenStreetMap" },
 ];
 
