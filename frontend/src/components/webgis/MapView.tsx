@@ -60,8 +60,6 @@ export function MapView({
   useEffect(() => {
     let cancelled = false;
     let map: MLMap | undefined;
-    let mobileQuery: MediaQueryList | undefined;
-    let updateAttributionLayout: ((event: MediaQueryListEvent) => void) | undefined;
     maplibregl.setWorkerUrl(maplibreWorkerUrl);
     setMapError(null);
     Promise.resolve()
@@ -75,29 +73,20 @@ export function MapView({
           attributionControl: false,
         });
         map = createdMap;
-        mobileQuery = window.matchMedia("(max-width: 767px)");
-        const collapseMobileAttribution = () => {
+        const collapseAttribution = () => {
           const attribution = createdMap
             .getContainer()
             .querySelector<HTMLElement>(".maplibregl-ctrl-attrib.maplibregl-compact");
           attribution?.classList.remove("maplibregl-compact-show");
           attribution?.removeAttribute("open");
         };
-        let attributionControl = new maplibregl.AttributionControl({
-          compact: mobileQuery.matches,
-        });
+        const attributionControl = new maplibregl.AttributionControl({ compact: true });
         createdMap.addControl(attributionControl, "bottom-right");
-        if (mobileQuery.matches) collapseMobileAttribution();
+        collapseAttribution();
         createdMap.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-left");
-        updateAttributionLayout = (event: MediaQueryListEvent) => {
-          createdMap.removeControl(attributionControl);
-          attributionControl = new maplibregl.AttributionControl({ compact: event.matches });
-          createdMap.addControl(attributionControl, "bottom-right");
-          if (event.matches) collapseMobileAttribution();
-        };
-        mobileQuery.addEventListener("change", updateAttributionLayout);
         mapRef.current = createdMap;
         const ready = () => {
+          collapseAttribution();
           map?.resize();
           setMapError(null);
           setMapReady(true);
@@ -120,9 +109,6 @@ export function MapView({
       });
     return () => {
       cancelled = true;
-      if (mobileQuery && updateAttributionLayout) {
-        mobileQuery.removeEventListener("change", updateAttributionLayout);
-      }
       map?.remove();
       mapRef.current = null;
     };
