@@ -21,6 +21,9 @@ const RASTER_IDS: Partial<Record<LayerId, RasterMetadata["id"]>> = {
   change: "change_2019_2025",
 };
 
+const MAX_RASTER_RETRIES = 3;
+const RASTER_RETRY_DELAYS = [2_000, 4_000, 8_000];
+
 interface Props {
   layerState: LayerState;
   basemap: BasemapId;
@@ -50,8 +53,14 @@ export function MapView({
   const hasInitialFit = useRef(false);
   const [mapReady, setMapReady] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [rasterNotice, setRasterNotice] = useState<string | null>(null);
+  const rastersRef = useRef(rasters);
+  const rasterRetriesRef = useRef(new Map<string, number>());
+  const rasterTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const rasterIssuesRef = useRef(new Map<string, string>());
   const stateRef = useRef(layerState);
   const basemapRef = useRef(basemap);
+  rastersRef.current = rasters;
   stateRef.current = layerState;
   basemapRef.current = basemap;
   const cb = useRef({ onReady, onMove, onClick });
@@ -62,6 +71,88 @@ export function MapView({
     let map: MLMap | undefined;
     maplibregl.setWorkerUrl(maplibreWorkerUrl);
     setMapError(null);
+    setRasterNotice(null);
+    rasterRetriesRef.current.clear();
+    rasterIssuesRef.current.clear();
+
+    const refreshRasterNotice = () => {
+      const issue = [...rasterIssuesRef.current.values()][0];
+      setRasterNotice(issue ?? null);
+    };
+
+    const rasterSourceIdForError = (event: maplibregl.ErrorEvent): string | null => {
+      const sourceId = (event as unknown as { sourceId?: string }).sourceId;
+      if (sourceId && RASTER_IDS[sourceId as LayerId]) return sourceId;
+      const detail = event.error as Error & { url?: string };
+      if (!detail.url) return null;
+      const failedPath = detail.url.split("?")[0];
+      const match = Object.entries(RASTER_IDS).find(([, rasterId]) => {
+        const raster = rastersRef.current?.find((item) => item.id === rasterId);
+        return raster && apiUrl(raster.image_url).split("?")[0] === failedPath;
+      });
+      return match?.[0] ?? null;
+    };
+
+    const retryRasterSource = (sourceId: string) => {
+      const rasterId = RASTER_IDS[sourceId as LayerId];
+      const raster = rastersRef.current?.find((item) => item.id === rasterId);
+      if (!raster?.available || !raster.coordinates || cancelled) return;
+      if (rasterTimersRef.current.has(sourceId)) return;
+
+      const attempt = (rasterRetriesRef.current.get(sourceId) ?? 0) + 1;
+      if (attempt > MAX_RASTER_RETRIES) {
+        rasterIssuesRef.current.set(
+          sourceId,
+          "Cette couche raster est indisponible pour le moment. Réessayez plus tard.",
+        );
+        refreshRasterNotice();
+        return;
+      }
+
+      rasterRetriesRef.current.set(sourceId, attempt);
+      rasterIssuesRef.current.set(
+        sourceId,
+        `Chargement de la couche raster en cours… nouvelle tentative ${attempt}/${MAX_RASTER_RETRIES}.`,
+      );
+      refreshRasterNotice();
+      const delay = RASTER_RETRY_DELAYS[attempt - 1] ?? RASTER_RETRY_DELAYS.at(-1)!;
+      const timer = setTimeout(() => {
+        rasterTimersRef.current.delete(sourceId);
+        if (cancelled || !map) return;
+        try {
+          if (map.getLayer(sourceId)) map.removeLayer(sourceId);
+          if (map.getSource(sourceId)) map.removeSource(sourceId);
+          const separator = raster.image_url.includes("?") ? "&" : "?";
+          map.addSource(sourceId, {
+            type: "image",
+            url: `${apiUrl(raster.image_url)}${separator}retry=${attempt}`,
+            coordinates: raster.coordinates,
+          });
+          map.addLayer(
+            { id: sourceId, type: "raster", source: sourceId },
+            map.getLayer("boundary-fill") ? "boundary-fill" : undefined,
+          );
+          const currentState = stateRef.current[sourceId as LayerId];
+          if (currentState) {
+            map.setLayoutProperty(
+              sourceId,
+              "visibility",
+              currentState.visible ? "visible" : "none",
+            );
+            map.setPaintProperty(sourceId, "raster-opacity", currentState.opacity);
+          }
+        } catch (error) {
+          console.error("Raster retry could not be scheduled", error);
+          rasterIssuesRef.current.set(
+            sourceId,
+            "Cette couche raster est indisponible pour le moment. Réessayez plus tard.",
+          );
+          refreshRasterNotice();
+        }
+      }, delay);
+      rasterTimersRef.current.set(sourceId, timer);
+    };
+
     Promise.resolve()
       .then(() => {
         if (cancelled || !ref.current) return;
@@ -96,8 +187,31 @@ export function MapView({
         // `load` is the first event after the initial style, source and canvas are ready.
         createdMap.once("load", ready);
         createdMap.on("error", (event) => {
+          const sourceId = rasterSourceIdForError(event);
+          if (sourceId) {
+            const detail = event.error as Error & { status?: number; url?: string };
+            const isTransient =
+              detail.status !== undefined && detail.status >= 500 && detail.status < 600;
+            if (isTransient) {
+              retryRasterSource(sourceId);
+            } else if (!cancelled) {
+              rasterIssuesRef.current.set(
+                sourceId,
+                "Impossible de charger cette couche raster. Vérifiez sa disponibilité.",
+              );
+              refreshRasterNotice();
+            }
+            return;
+          }
           console.error("MapLibre error", event.error);
           if (!cancelled) setMapError(event.error?.message ?? "Map tiles could not be loaded");
+        });
+        createdMap.on("sourcedata", (event) => {
+          if (!event.sourceId || !RASTER_IDS[event.sourceId as LayerId] || !event.isSourceLoaded)
+            return;
+          rasterRetriesRef.current.delete(event.sourceId);
+          rasterIssuesRef.current.delete(event.sourceId);
+          refreshRasterNotice();
         });
         createdMap.on("mousemove", (e) => cb.current.onMove(e.lngLat));
         createdMap.on("mouseout", () => cb.current.onMove(null));
@@ -107,8 +221,11 @@ export function MapView({
         console.error("MapLibre initialization failed", error);
         setMapError(error instanceof Error ? error.message : "MapLibre could not be initialized");
       });
+    const rasterTimers = rasterTimersRef.current;
     return () => {
       cancelled = true;
+      rasterTimers.forEach((timer) => clearTimeout(timer));
+      rasterTimers.clear();
       map?.remove();
       mapRef.current = null;
     };
@@ -266,6 +383,14 @@ export function MapView({
           Map display error
           <br />
           <span className="text-[10px] text-muted-foreground">{mapError}</span>
+        </div>
+      )}
+      {rasterNotice && !mapError && (
+        <div
+          role="status"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-md border bg-card/95 px-4 py-3 text-center text-xs text-muted-foreground shadow-panel"
+        >
+          {rasterNotice}
         </div>
       )}
     </>

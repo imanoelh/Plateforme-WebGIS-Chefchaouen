@@ -30,6 +30,15 @@ export async function getFeatureInfo(
 }
 
 export function MapPopup({ info, onClose }: { info: FeatureInfo; onClose: () => void }) {
+  const viewportWidth = typeof window === "undefined" ? 1024 : window.innerWidth;
+  const mobile = viewportWidth < 768;
+  const popupWidth = Math.min(240, Math.max(0, viewportWidth - 16));
+  const left = mobile
+    ? Math.min(Math.max(info.point.x, popupWidth / 2 + 8), viewportWidth - popupWidth / 2 - 8)
+    : info.point.x;
+  const arrowLeft = mobile
+    ? Math.min(Math.max(info.point.x - (left - popupWidth / 2), 12), popupWidth - 12)
+    : popupWidth / 2;
   const rows: [string, string | null][] = [
     ["Land Cover 2019", info.lc2019],
     ["Land Cover 2025", info.lc2025],
@@ -37,29 +46,39 @@ export function MapPopup({ info, onClose }: { info: FeatureInfo; onClose: () => 
   ];
   return (
     <div
-      className="pointer-events-auto absolute z-20 w-60 -translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-md border bg-card p-3 text-xs shadow-panel"
-      style={{ left: info.point.x, top: info.point.y }}
+      className="pointer-events-auto absolute z-20 w-60 max-w-[calc(100vw-1rem)] -translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-md border bg-card p-3 text-xs shadow-panel"
+      style={{ left, top: info.point.y }}
     >
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-semibold">Location information</span>
+        <span className="min-w-0 pr-2 font-semibold">Location information</span>
         <button
           onClick={onClose}
           aria-label="Close"
-          className="text-muted-foreground hover:text-foreground"
+          className="shrink-0 text-muted-foreground hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>
       <dl className="space-y-1">
-        {rows.map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-2">
-            <dt className="text-muted-foreground">{k}</dt>
-            <dd className="font-medium">{v ?? "—"}</dd>
-          </div>
-        ))}
-        <div className="flex justify-between gap-2">
-          <dt className="text-muted-foreground">Coordinates</dt>
-          <dd className="font-mono">
+        {rows.map(([k, v]) => {
+          const longValue = Boolean(v && v.length > 14);
+          return (
+            <div
+              key={k}
+              className={`flex flex-col items-start gap-0.5 ${longValue ? "" : "md:flex-row md:items-start md:justify-between md:gap-2"}`}
+            >
+              <dt className="min-w-0 text-muted-foreground">{k}</dt>
+              <dd
+                className={`min-w-0 text-left font-medium ${longValue ? "whitespace-nowrap" : "break-words md:text-right"}`}
+              >
+                {v ?? "—"}
+              </dd>
+            </div>
+          );
+        })}
+        <div className="flex flex-col items-start gap-0.5 md:flex-row md:items-start md:justify-between md:gap-2">
+          <dt className="min-w-0 text-muted-foreground">Coordinates</dt>
+          <dd className="min-w-0 break-words text-left font-mono md:text-right">
             {info.lngLat.lat.toFixed(4)}, {info.lngLat.lng.toFixed(4)}
           </dd>
         </div>
@@ -74,7 +93,10 @@ export function MapPopup({ info, onClose }: { info: FeatureInfo; onClose: () => 
           Pixel values unavailable. Check the backend connection.
         </p>
       )}
-      <span className="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 border-b border-r bg-card" />
+      <span
+        className="absolute top-full h-2 w-2 -translate-x-1/2 -translate-y-1 rotate-45 border-b border-r bg-card"
+        style={{ left: arrowLeft }}
+      />
     </div>
   );
 }

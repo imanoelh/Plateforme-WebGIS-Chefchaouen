@@ -14,9 +14,18 @@ interface BarProps {
 
 export function CompareBar({ mode, onMode, blend, onBlend, onClose }: BarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2 shadow-panel">
-      <span className="text-xs font-semibold">Compare</span>
-      <div className="flex rounded border p-0.5 text-xs">
+    <div className="flex max-w-[calc(100vw-1rem)] flex-wrap items-center gap-3 rounded-md border bg-card px-3 py-2 shadow-panel">
+      <div className="flex w-full min-w-0 items-center justify-between gap-3 md:contents">
+        <span className="min-w-0 text-xs font-semibold md:order-1">Compare</span>
+        <button
+          onClick={onClose}
+          aria-label="Exit comparison"
+          className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent md:order-3"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="order-2 flex rounded border p-0.5 text-xs">
         {(["swipe", "opacity"] as const).map((m) => (
           <button
             key={m}
@@ -28,7 +37,7 @@ export function CompareBar({ mode, onMode, blend, onBlend, onClose }: BarProps) 
         ))}
       </div>
       {mode === "opacity" && (
-        <div className="flex w-56 items-center gap-2 text-xs">
+        <div className="order-2 flex w-56 items-center gap-2 text-xs">
           <span className="font-mono">2019</span>
           <Slider
             value={[Math.round(blend * 100)]}
@@ -40,13 +49,6 @@ export function CompareBar({ mode, onMode, blend, onBlend, onClose }: BarProps) 
           <span className="font-mono">2025</span>
         </div>
       )}
-      <button
-        onClick={onClose}
-        aria-label="Exit comparison"
-        className="rounded p-1 text-muted-foreground hover:bg-accent"
-      >
-        <X className="h-4 w-4" />
-      </button>
     </div>
   );
 }

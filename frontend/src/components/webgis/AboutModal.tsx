@@ -74,6 +74,7 @@ export function AboutModal({
     })
     .filter((value): value is string => value !== null)
     .join("; ");
+  const accuracyDisplay = accuracyText ? `${accuracyText}.` : "Accuracy values are unavailable.";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
@@ -168,9 +169,9 @@ export function AboutModal({
                     <div className="min-w-0">
                       <p className="font-semibold">Accuracy assessment</p>
                       <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                        Accuracy was assessed with 577 validation points per year.{" "}
-                        {accuracyText || "Accuracy values are unavailable."} The validation labels
-                        are derived from WorldCover and are not independent field observations.
+                        Accuracy was assessed with 577 validation points per year. {accuracyDisplay}{" "}
+                        The validation labels are derived from WorldCover and are not independent
+                        field observations.
                       </p>
                     </div>
                   </div>
