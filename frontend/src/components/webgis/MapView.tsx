@@ -372,11 +372,6 @@ export function MapView({
       <div className="absolute inset-0">
         <div ref={ref} className="h-full w-full" aria-label="Interactive map of Chefchaouen" />
       </div>
-      {staticTest && (
-        <div className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-card/95 px-2.5 py-1 text-[10px] font-semibold text-primary shadow-panel">
-          {staticTest === "all" ? "Static test — all rasters" : "Static test — Land Cover 2019"}
-        </div>
-      )}
       {compareMode === "swipe" && compareRaster && (
         <div
           className="pointer-events-none absolute inset-0"
