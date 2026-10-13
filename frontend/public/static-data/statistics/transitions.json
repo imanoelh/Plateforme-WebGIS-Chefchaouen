@@ -1,0 +1,170 @@
+[
+  {
+    "code": 11,
+    "from_class": "Forest",
+    "to_class": "Forest",
+    "area_ha": 3165.21
+  },
+  {
+    "code": 12,
+    "from_class": "Forest",
+    "to_class": "Shrubland/grassland",
+    "area_ha": 255.7
+  },
+  {
+    "code": 13,
+    "from_class": "Forest",
+    "to_class": "Cropland",
+    "area_ha": 2.66
+  },
+  {
+    "code": 14,
+    "from_class": "Forest",
+    "to_class": "Built-up",
+    "area_ha": 0.11
+  },
+  {
+    "code": 15,
+    "from_class": "Forest",
+    "to_class": "Bare/sparse",
+    "area_ha": 2.66
+  },
+  {
+    "code": 21,
+    "from_class": "Shrubland/grassland",
+    "to_class": "Forest",
+    "area_ha": 188.46
+  },
+  {
+    "code": 22,
+    "from_class": "Shrubland/grassland",
+    "to_class": "Shrubland/grassland",
+    "area_ha": 3332.23
+  },
+  {
+    "code": 23,
+    "from_class": "Shrubland/grassland",
+    "to_class": "Cropland",
+    "area_ha": 64.91
+  },
+  {
+    "code": 24,
+    "from_class": "Shrubland/grassland",
+    "to_class": "Built-up",
+    "area_ha": 14.39
+  },
+  {
+    "code": 25,
+    "from_class": "Shrubland/grassland",
+    "to_class": "Bare/sparse",
+    "area_ha": 63.12
+  },
+  {
+    "code": 31,
+    "from_class": "Cropland",
+    "to_class": "Forest",
+    "area_ha": 3
+  },
+  {
+    "code": 32,
+    "from_class": "Cropland",
+    "to_class": "Shrubland/grassland",
+    "area_ha": 105.11
+  },
+  {
+    "code": 33,
+    "from_class": "Cropland",
+    "to_class": "Cropland",
+    "area_ha": 395.39
+  },
+  {
+    "code": 34,
+    "from_class": "Cropland",
+    "to_class": "Built-up",
+    "area_ha": 23.68
+  },
+  {
+    "code": 35,
+    "from_class": "Cropland",
+    "to_class": "Bare/sparse",
+    "area_ha": 14.02
+  },
+  {
+    "code": 41,
+    "from_class": "Built-up",
+    "to_class": "Forest",
+    "area_ha": 0.04
+  },
+  {
+    "code": 42,
+    "from_class": "Built-up",
+    "to_class": "Shrubland/grassland",
+    "area_ha": 14.32
+  },
+  {
+    "code": 43,
+    "from_class": "Built-up",
+    "to_class": "Cropland",
+    "area_ha": 11.13
+  },
+  {
+    "code": 44,
+    "from_class": "Built-up",
+    "to_class": "Built-up",
+    "area_ha": 206.16
+  },
+  {
+    "code": 45,
+    "from_class": "Built-up",
+    "to_class": "Bare/sparse",
+    "area_ha": 10.33
+  },
+  {
+    "code": 51,
+    "from_class": "Bare/sparse",
+    "to_class": "Forest",
+    "area_ha": 0.69
+  },
+  {
+    "code": 52,
+    "from_class": "Bare/sparse",
+    "to_class": "Shrubland/grassland",
+    "area_ha": 43.44
+  },
+  {
+    "code": 53,
+    "from_class": "Bare/sparse",
+    "to_class": "Cropland",
+    "area_ha": 13.84
+  },
+  {
+    "code": 54,
+    "from_class": "Bare/sparse",
+    "to_class": "Built-up",
+    "area_ha": 7.61
+  },
+  {
+    "code": 55,
+    "from_class": "Bare/sparse",
+    "to_class": "Bare/sparse",
+    "area_ha": 146.11
+  },
+  {
+    "code": 63,
+    "from_class": "Water",
+    "to_class": "Cropland",
+    "area_ha": 0.01
+  },
+  {
+    "code": 65,
+    "from_class": "Water",
+    "to_class": "Bare/sparse",
+    "area_ha": 0.1
+  },
+  {
+    "code": 66,
+    "from_class": "Water",
+    "to_class": "Water",
+    "area_ha": 0.04
+  }
+]

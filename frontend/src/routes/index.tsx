@@ -22,6 +22,8 @@ import { StatisticsPanel } from "@/components/webgis/StatisticsPanel";
 import { MapPopup, getFeatureInfo, type FeatureInfo } from "@/components/webgis/MapPopup";
 import { AboutModal } from "@/components/webgis/AboutModal";
 import { Footer, Header } from "@/components/webgis/Header";
+import { loadStaticRasterManifest, staticRasterMetadata, staticTestMode } from "@/lib/staticRaster";
+import { staticDataApi } from "@/lib/staticData";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -48,44 +50,68 @@ export const Route = createFileRoute("/")({
 type MobileSheet = "layers" | "stats" | null;
 
 function WebGIS() {
+  const staticTest = staticTestMode();
+  const staticAll = staticTest === "all";
   const mapRef = useRef<MLMap | null>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const popupRequest = useRef(0);
   const summaryQuery = useQuery({
-    queryKey: ["webgis", "summary"],
-    queryFn: webgisApi.summary,
+    queryKey: ["webgis", "summary", staticAll ? "static" : "api"],
+    queryFn: staticAll ? staticDataApi.summary : webgisApi.summary,
     staleTime: 300_000,
-    retry: retryApiRequest,
+    retry: staticAll ? false : retryApiRequest,
     retryDelay: apiRetryDelay,
   });
   const transitionsQuery = useQuery({
-    queryKey: ["webgis", "transitions"],
-    queryFn: webgisApi.transitions,
+    queryKey: ["webgis", "transitions", staticAll ? "static" : "api"],
+    queryFn: staticAll ? staticDataApi.transitions : webgisApi.transitions,
     staleTime: 300_000,
-    retry: retryApiRequest,
+    retry: staticAll ? false : retryApiRequest,
     retryDelay: apiRetryDelay,
   });
   const legendQuery = useQuery({
-    queryKey: ["webgis", "legend"],
-    queryFn: webgisApi.legend,
+    queryKey: ["webgis", "legend", staticAll ? "static" : "api"],
+    queryFn: staticAll ? staticDataApi.legend : webgisApi.legend,
     staleTime: 300_000,
-    retry: retryApiRequest,
+    retry: staticAll ? false : retryApiRequest,
     retryDelay: apiRetryDelay,
   });
   const studyAreaQuery = useQuery({
-    queryKey: ["webgis", "study-area"],
-    queryFn: webgisApi.studyArea,
+    queryKey: ["webgis", "study-area", staticAll ? "static" : "api"],
+    queryFn: staticAll ? staticDataApi.studyArea : webgisApi.studyArea,
     staleTime: 300_000,
-    retry: retryApiRequest,
+    retry: staticAll ? false : retryApiRequest,
     retryDelay: apiRetryDelay,
   });
   const rastersQuery = useQuery({
     queryKey: ["webgis", "rasters"],
     queryFn: webgisApi.rasters,
+    enabled: !staticTest,
     staleTime: 300_000,
     retry: retryApiRequest,
     retryDelay: apiRetryDelay,
   });
+  const staticManifestQuery = useQuery({
+    queryKey: ["webgis", "static-raster-manifest"],
+    queryFn: loadStaticRasterManifest,
+    enabled: staticTest !== null,
+    staleTime: Infinity,
+    retry: false,
+  });
+  const staticManifest = staticManifestQuery.data;
+  const displayedRasters = useMemo(
+    () =>
+      staticTest !== null
+        ? staticManifest
+          ? staticTest === "2019"
+            ? [staticRasterMetadata("landcover_2019", staticManifest.rasters.landcover_2019)]
+            : Object.entries(staticManifest.rasters).map(([id, raster]) =>
+                staticRasterMetadata(id as keyof typeof staticManifest.rasters, raster),
+              )
+          : []
+        : rastersQuery.data,
+    [rastersQuery.data, staticManifest, staticTest],
+  );
   const [layers, setLayers] = useState<LayerState>(
     () =>
       Object.fromEntries(
@@ -131,7 +157,7 @@ function WebGIS() {
 
   const availableLayers = useMemo(() => {
     const available = new Set<string>();
-    for (const raster of rastersQuery.data ?? []) {
+    for (const raster of displayedRasters ?? []) {
       if (!raster.available || !raster.coordinates) continue;
       if (raster.id === "landcover_2019") available.add("lc2019");
       if (raster.id === "landcover_2025") available.add("lc2025");
@@ -139,7 +165,7 @@ function WebGIS() {
     }
     if (studyAreaQuery.data?.features.length) available.add("boundary");
     return available;
-  }, [rastersQuery.data, studyAreaQuery.data]);
+  }, [displayedRasters, studyAreaQuery.data]);
 
   const legendKind: LegendKind = effective.change.visible
     ? "change"
@@ -160,13 +186,33 @@ function WebGIS() {
   };
   const onClick = async (lngLat: { lng: number; lat: number }, point: { x: number; y: number }) => {
     const request = ++popupRequest.current;
-    setPopup({ lngLat, point, lc2019: null, lc2025: null, change: null, loading: true });
+    setPopup({
+      lngLat,
+      point,
+      lc2019: null,
+      lc2025: null,
+      change: null,
+      loading: true,
+      loadingMessage:
+        staticTest === null ? "Reading PostGIS raster values…" : "Reading static raster values…",
+    });
     try {
-      const info = await getFeatureInfo(lngLat, point);
+      const info = await getFeatureInfo(lngLat, point, staticManifest, staticTest ?? "all");
       if (request === popupRequest.current) setPopup(info);
     } catch {
       if (request === popupRequest.current)
-        setPopup({ lngLat, point, lc2019: null, lc2025: null, change: null, error: true });
+        setPopup({
+          lngLat,
+          point,
+          lc2019: null,
+          lc2025: null,
+          change: null,
+          error: true,
+          errorMessage:
+            staticTest === null
+              ? "Pixel values unavailable. Check the backend connection."
+              : "Les valeurs du raster statique sont indisponibles.",
+        });
     }
   };
 
@@ -206,6 +252,8 @@ function WebGIS() {
     transitions: transitionsQuery.data,
     loading: summaryQuery.isPending || transitionsQuery.isPending,
     error: summaryQuery.isError || transitionsQuery.isError,
+    loadingMessage: staticAll ? "Loading static statistics…" : undefined,
+    errorMessage: staticAll ? "Static statistics unavailable." : undefined,
   };
   const compareAvailable = availableLayers.has("lc2019") && availableLayers.has("lc2025");
 
@@ -219,7 +267,10 @@ function WebGIS() {
         onOpacity={opacity}
         onZoom={home}
         availableLayers={availableLayers}
-        loading={rastersQuery.isPending || studyAreaQuery.isPending}
+        loading={
+          (staticTest ? staticManifestQuery.isPending : rastersQuery.isPending) ||
+          studyAreaQuery.isPending
+        }
         comparisonActive={compare !== null}
       />
       <section className="mt-5 border-t pt-4">
@@ -229,6 +280,8 @@ function WebGIS() {
           entries={legendQuery.data}
           loading={legendQuery.isPending}
           error={legendQuery.isError}
+          loadingMessage={staticAll ? "Loading static legend…" : undefined}
+          errorMessage={staticAll ? "Static legend unavailable." : undefined}
         />
       </section>
     </>
@@ -268,7 +321,9 @@ function WebGIS() {
             layerState={effective}
             basemap={basemap}
             studyArea={studyAreaQuery.data}
-            rasters={rastersQuery.data}
+            rasters={displayedRasters}
+            staticManifest={staticManifest}
+            staticTest={staticTest}
             compareMode={compare}
             swipe={swipe}
             onReady={(m) => (mapRef.current = m)}
@@ -279,12 +334,16 @@ function WebGIS() {
             <SwipeDivider position={swipe} onChange={setSwipe} />
           )}
           {popup && <MapPopup info={popup} onClose={closePopup} />}
-          {(rastersQuery.isError || studyAreaQuery.isError) && (
+          {((staticTest === null && rastersQuery.isError) ||
+            studyAreaQuery.isError ||
+            staticManifestQuery.isError) && (
             <p
               role="alert"
               className="absolute bottom-16 left-1/2 z-20 -translate-x-1/2 rounded bg-card px-3 py-2 text-xs text-loss shadow-panel"
             >
-              Map data unavailable — check the API at localhost:8001.
+              {staticManifestQuery.isError
+                ? "Les ressources statiques sont indisponibles."
+                : "Map data unavailable — check the API at localhost:8001."}
             </p>
           )}
 

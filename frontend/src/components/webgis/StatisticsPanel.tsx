@@ -183,18 +183,26 @@ export function StatisticsPanel({
   transitions,
   loading,
   error,
+  loadingMessage,
+  errorMessage,
 }: {
   summary: DashboardSummary | undefined;
   transitions: Transition[] | undefined;
   loading: boolean;
   error: boolean;
+  loadingMessage?: string;
+  errorMessage?: string;
 }) {
   if (loading)
-    return <p className="text-xs text-muted-foreground">Loading statistics from PostGIS…</p>;
+    return (
+      <p className="text-xs text-muted-foreground">
+        {loadingMessage ?? "Loading statistics from PostGIS…"}
+      </p>
+    );
   if (error || !summary || !transitions)
     return (
       <p role="alert" className="text-xs text-loss">
-        Statistics unavailable. Check the backend connection.
+        {errorMessage ?? "Statistics unavailable. Check the backend connection."}
       </p>
     );
   return (

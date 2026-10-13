@@ -1,0 +1,62 @@
+[
+  {
+    "layer": "landcover",
+    "value": 1,
+    "class_name": "Forest",
+    "hex_color": "#1B7837"
+  },
+  {
+    "layer": "landcover",
+    "value": 2,
+    "class_name": "Shrubland/grassland",
+    "hex_color": "#A6D96A"
+  },
+  {
+    "layer": "landcover",
+    "value": 3,
+    "class_name": "Cropland",
+    "hex_color": "#FEE08B"
+  },
+  {
+    "layer": "landcover",
+    "value": 4,
+    "class_name": "Built-up",
+    "hex_color": "#D73027"
+  },
+  {
+    "layer": "landcover",
+    "value": 5,
+    "class_name": "Bare/sparse",
+    "hex_color": "#BDBDBD"
+  },
+  {
+    "layer": "landcover",
+    "value": 6,
+    "class_name": "Water",
+    "hex_color": "#4575B4"
+  },
+  {
+    "layer": "change",
+    "value": 1,
+    "class_name": "Stable",
+    "hex_color": "#E0E0E0"
+  },
+  {
+    "layer": "change",
+    "value": 2,
+    "class_name": "Forest loss",
+    "hex_color": "#D55E00"
+  },
+  {
+    "layer": "change",
+    "value": 3,
+    "class_name": "Forest gain",
+    "hex_color": "#009E73"
+  },
+  {
+    "layer": "change",
+    "value": 4,
+    "class_name": "Other change",
+    "hex_color": "#56B4E9"
+  }
+]

@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "rasters": {
+    "landcover_2019": {
+      "displayImage": "static-data/rasters/landcover_2019.png",
+      "classData": "static-data/rasters/landcover_2019.classes.bin",
+      "width": 931,
+      "height": 909,
+      "sourceCrs": "EPSG:32630",
+      "displayCrs": "EPSG:4326",
+      "origin": [
+        292280,
+        3899830,
+        0
+      ],
+      "resolution": [
+        10,
+        -10,
+        0
+      ],
+      "bbox": [
+        292280,
+        3890740,
+        301590,
+        3899830
+      ],
+      "displayCoordinates": [
+        [
+          -5.282265047747698,
+          35.220024065854844
+        ],
+        [
+          -5.180041518519136,
+          35.22190896789131
+        ],
+        [
+          -5.177854529271578,
+          35.14000231754325
+        ],
+        [
+          -5.279975721032388,
+          35.138123094660266
+        ]
+      ],
+      "nodata": 0,
+      "classes": {
+        "1": {
+          "name": "Forest",
+          "color": "#1B7837"
+        },
+        "2": {
+          "name": "Shrubland/grassland",
+          "color": "#A6D96A"
+        },
+        "3": {
+          "name": "Cropland",
+          "color": "#FEE08B"
+        },
+        "4": {
+          "name": "Built-up",
+          "color": "#D73027"
+        },
+        "5": {
+          "name": "Bare/sparse",
+          "color": "#BDBDBD"
+        },
+        "6": {
+          "name": "Water",
+          "color": "#4575B4"
+        }
+      },
+      "classCodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "classCounts": {
+        "0": 35950,
+        "1": 343303,
+        "2": 367257,
+        "3": 54293,
+        "4": 24267,
+        "5": 21194,
+        "6": 15
+      },
+      "sourceSha256": "ab9acf0e34d1ea21115e46af45201858a5bf1ebff0be7f3456e7553e0a716031",
+      "classDataOrder": "row-major, top-to-bottom, left-to-right",
+      "mapLibreCoordinatesOrder": "top-left, top-right, bottom-right, bottom-left"
+    },
+    "landcover_2025": {
+      "displayImage": "static-data/rasters/landcover_2025.png",
+      "classData": "static-data/rasters/landcover_2025.classes.bin",
+      "width": 931,
+      "height": 909,
+      "sourceCrs": "EPSG:32630",
+      "displayCrs": "EPSG:4326",
+      "origin": [
+        292280,
+        3899830,
+        0
+      ],
+      "resolution": [
+        10,
+        -10,
+        0
+      ],
+      "bbox": [
+        292280,
+        3890740,
+        301590,
+        3899830
+      ],
+      "displayCoordinates": [
+        [
+          -5.282265047747698,
+          35.220024065854844
+        ],
+        [
+          -5.180041518519136,
+          35.22190896789131
+        ],
+        [
+          -5.177854529271578,
+          35.14000231754325
+        ],
+        [
+          -5.279975721032388,
+          35.138123094660266
+        ]
+      ],
+      "nodata": 0,
+      "classes": {
+        "1": {
+          "name": "Forest",
+          "color": "#1B7837"
+        },
+        "2": {
+          "name": "Shrubland/grassland",
+          "color": "#A6D96A"
+        },
+        "3": {
+          "name": "Cropland",
+          "color": "#FEE08B"
+        },
+        "4": {
+          "name": "Built-up",
+          "color": "#D73027"
+        },
+        "5": {
+          "name": "Bare/sparse",
+          "color": "#BDBDBD"
+        },
+        "6": {
+          "name": "Water",
+          "color": "#4575B4"
+        }
+      },
+      "classCodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "classCounts": {
+        "0": 35950,
+        "1": 336408,
+        "2": 376050,
+        "3": 48950,
+        "4": 25262,
+        "5": 23655,
+        "6": 4
+      },
+      "sourceSha256": "7b29340ca264b96c1c4c760f1e34d34ba1f2209009e9135ff2ed41e141fa47ee",
+      "classDataOrder": "row-major, top-to-bottom, left-to-right",
+      "mapLibreCoordinatesOrder": "top-left, top-right, bottom-right, bottom-left"
+    },
+    "change_2019_2025": {
+      "displayImage": "static-data/rasters/change_2019_2025.png",
+      "classData": "static-data/rasters/change_2019_2025.classes.bin",
+      "width": 931,
+      "height": 909,
+      "sourceCrs": "EPSG:32630",
+      "displayCrs": "EPSG:4326",
+      "origin": [
+        292280,
+        3899830,
+        0
+      ],
+      "resolution": [
+        10,
+        -10,
+        0
+      ],
+      "bbox": [
+        292280,
+        3890740,
+        301590,
+        3899830
+      ],
+      "displayCoordinates": [
+        [
+          -5.282265047747698,
+          35.220024065854844
+        ],
+        [
+          -5.180041518519136,
+          35.22190896789131
+        ],
+        [
+          -5.177854529271578,
+          35.14000231754325
+        ],
+        [
+          -5.279975721032388,
+          35.138123094660266
+        ]
+      ],
+      "nodata": 0,
+      "classes": {
+        "1": {
+          "name": "Stable",
+          "color": "#E0E0E0"
+        },
+        "2": {
+          "name": "Forest loss",
+          "color": "#D55E00"
+        },
+        "3": {
+          "name": "Forest gain",
+          "color": "#009E73"
+        },
+        "4": {
+          "name": "Other change",
+          "color": "#56B4E9"
+        }
+      },
+      "classCodes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "classCounts": {
+        "0": 35950,
+        "1": 726164,
+        "2": 26178,
+        "3": 19283,
+        "4": 38704
+      },
+      "sourceSha256": "8a8843187233530b975a0639baa9d15fb2ae90713d8ba83a39f9a0e046c7033b",
+      "classDataOrder": "row-major, top-to-bottom, left-to-right",
+      "mapLibreCoordinatesOrder": "top-left, top-right, bottom-right, bottom-left"
+    }
+  }
+}

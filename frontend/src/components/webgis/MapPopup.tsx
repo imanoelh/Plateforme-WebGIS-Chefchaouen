@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { webgisApi } from "@/lib/webgisApi";
+import { staticRasterPixelValue, type StaticRasterManifest } from "@/lib/staticRaster";
 
 export interface FeatureInfo {
   lngLat: { lng: number; lat: number };
@@ -8,13 +9,49 @@ export interface FeatureInfo {
   lc2025: string | null;
   change: string | null;
   loading?: boolean;
+  loadingMessage?: string;
   error?: boolean;
+  errorMessage?: string;
 }
 
 export async function getFeatureInfo(
   lngLat: { lng: number; lat: number },
   point: { x: number; y: number },
+  staticManifest?: StaticRasterManifest,
+  staticMode: "2019" | "all" = "all",
 ): Promise<FeatureInfo> {
+  if (staticManifest) {
+    const lc2019 = await staticRasterPixelValue(
+      "landcover_2019",
+      staticManifest.rasters.landcover_2019,
+      lngLat.lng,
+      lngLat.lat,
+    );
+    if (staticMode === "2019") {
+      return { lngLat, point, lc2019: lc2019.class_name, lc2025: null, change: null };
+    }
+    const [lc2025, change] = await Promise.all([
+      staticRasterPixelValue(
+        "landcover_2025",
+        staticManifest.rasters.landcover_2025,
+        lngLat.lng,
+        lngLat.lat,
+      ),
+      staticRasterPixelValue(
+        "change_2019_2025",
+        staticManifest.rasters.change_2019_2025,
+        lngLat.lng,
+        lngLat.lat,
+      ),
+    ]);
+    return {
+      lngLat,
+      point,
+      lc2019: lc2019.class_name,
+      lc2025: lc2025.class_name,
+      change: change.class_name,
+    };
+  }
   const [lc2019, lc2025, change] = await Promise.all([
     webgisApi.pixelValue("landcover_2019", lngLat.lng, lngLat.lat),
     webgisApi.pixelValue("landcover_2025", lngLat.lng, lngLat.lat),
@@ -85,12 +122,12 @@ export function MapPopup({ info, onClose }: { info: FeatureInfo; onClose: () => 
       </dl>
       {info.loading && (
         <p className="mt-2 border-t pt-2 text-[10px] text-muted-foreground">
-          Reading PostGIS raster values…
+          {info.loadingMessage ?? "Reading PostGIS raster values…"}
         </p>
       )}
       {info.error && (
         <p role="alert" className="mt-2 border-t pt-2 text-[10px] text-loss">
-          Pixel values unavailable. Check the backend connection.
+          {info.errorMessage ?? "Pixel values unavailable. Check the backend connection."}
         </p>
       )}
       <span

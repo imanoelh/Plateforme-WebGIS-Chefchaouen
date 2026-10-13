@@ -6,21 +6,26 @@ export function Legend({
   entries,
   loading,
   error,
+  loadingMessage,
+  errorMessage,
 }: {
   kind: LegendKind;
   entries: LegendEntry[] | undefined;
   loading: boolean;
   error: boolean;
+  loadingMessage?: string;
+  errorMessage?: string;
 }) {
   if (!kind)
     return (
       <p className="text-xs text-muted-foreground">Enable a thematic layer to see its legend.</p>
     );
-  if (loading) return <p className="text-xs text-muted-foreground">Loading legend…</p>;
+  if (loading)
+    return <p className="text-xs text-muted-foreground">{loadingMessage ?? "Loading legend…"}</p>;
   if (error || !entries)
     return (
       <p role="alert" className="text-xs text-loss">
-        Legend unavailable.
+        {errorMessage ?? "Legend unavailable."}
       </p>
     );
   const classes = entries.filter((entry) => entry.layer === kind).sort((a, b) => a.value - b.value);

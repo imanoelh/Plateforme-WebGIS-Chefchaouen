@@ -12,6 +12,7 @@ import {
   type LayerId,
 } from "@/config/mapConfig";
 import { apiUrl, studyAreaBounds, type RasterMetadata, type StudyArea } from "@/lib/webgisApi";
+import type { StaticRasterManifest } from "@/lib/staticRaster";
 
 export type LayerState = Record<LayerId, { visible: boolean; opacity: number }>;
 
@@ -29,6 +30,8 @@ interface Props {
   basemap: BasemapId;
   studyArea: StudyArea | undefined;
   rasters: RasterMetadata[] | undefined;
+  staticManifest?: StaticRasterManifest;
+  staticTest?: "2019" | "all" | null;
   swipe?: number;
   compareMode: "swipe" | "opacity" | null;
   onReady: (map: MLMap) => void;
@@ -41,6 +44,8 @@ export function MapView({
   basemap,
   studyArea,
   rasters,
+  staticManifest,
+  staticTest = null,
   swipe = 0.5,
   compareMode,
   onReady,
@@ -88,7 +93,7 @@ export function MapView({
       const failedPath = detail.url.split("?")[0];
       const match = Object.entries(RASTER_IDS).find(([, rasterId]) => {
         const raster = rastersRef.current?.find((item) => item.id === rasterId);
-        return raster && apiUrl(raster.image_url).split("?")[0] === failedPath;
+        return raster && rasterImageUrl(raster, staticManifest).split("?")[0] === failedPath;
       });
       return match?.[0] ?? null;
     };
@@ -122,10 +127,11 @@ export function MapView({
         try {
           if (map.getLayer(sourceId)) map.removeLayer(sourceId);
           if (map.getSource(sourceId)) map.removeSource(sourceId);
-          const separator = raster.image_url.includes("?") ? "&" : "?";
+          const sourceUrl = rasterImageUrl(raster, staticManifest);
+          const separator = sourceUrl.includes("?") ? "&" : "?";
           map.addSource(sourceId, {
             type: "image",
-            url: `${apiUrl(raster.image_url)}${separator}retry=${attempt}`,
+            url: `${sourceUrl}${separator}retry=${attempt}`,
             coordinates: raster.coordinates,
           });
           map.addLayer(
@@ -229,7 +235,7 @@ export function MapView({
       map?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [staticManifest]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -240,7 +246,7 @@ export function MapView({
       if (!raster?.available || !raster.coordinates) continue;
       map.addSource(layer.id, {
         type: "image",
-        url: apiUrl(raster.image_url),
+        url: rasterImageUrl(raster, staticManifest),
         coordinates: raster.coordinates,
       });
       map.addLayer(
@@ -269,7 +275,7 @@ export function MapView({
       }
     }
     applyState(map, stateRef.current);
-  }, [mapReady, rasters, studyArea]);
+  }, [mapReady, rasters, studyArea, staticManifest]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -331,7 +337,7 @@ export function MapView({
         if (!overlay) return;
         overlay.addSource("compare-2025", {
           type: "image",
-          url: apiUrl(compareRaster.image_url),
+          url: rasterImageUrl(compareRaster, staticManifest),
           coordinates: compareRaster.coordinates!,
         });
         overlay.addLayer({ id: "compare-2025", type: "raster", source: "compare-2025" });
@@ -359,13 +365,18 @@ export function MapView({
       if (syncResize) main.off("resize", syncResize);
       overlay?.remove();
     };
-  }, [compareMode, compareRaster, mapReady]);
+  }, [compareMode, compareRaster, mapReady, staticManifest]);
 
   return (
     <>
       <div className="absolute inset-0">
         <div ref={ref} className="h-full w-full" aria-label="Interactive map of Chefchaouen" />
       </div>
+      {staticTest && (
+        <div className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-card/95 px-2.5 py-1 text-[10px] font-semibold text-primary shadow-panel">
+          {staticTest === "all" ? "Static test — all rasters" : "Static test — Land Cover 2019"}
+        </div>
+      )}
       {compareMode === "swipe" && compareRaster && (
         <div
           className="pointer-events-none absolute inset-0"
@@ -395,6 +406,13 @@ export function MapView({
       )}
     </>
   );
+}
+
+function rasterImageUrl(raster: RasterMetadata, staticManifest?: StaticRasterManifest): string {
+  const staticRaster = staticManifest?.rasters[raster.id];
+  return staticRaster
+    ? `/${staticRaster.displayImage.replace(/^\//, "")}`
+    : apiUrl(raster.image_url);
 }
 
 function applyState(map: MLMap, state: LayerState) {
